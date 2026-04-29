@@ -59,6 +59,32 @@ const getVrioCampaignInfoBasedOnPaymentMethod = (isVipUpsell) => {
 ;
 const isVipUpsell = true;
 const { vrioCampaignId, countries, integrationId } = getVrioCampaignInfoBasedOnPaymentMethod(isVipUpsell);
+const CURRENCY = "USD";
+
+const CURRENCY_LOCALE_MAP = {
+  USD: 'en-US',
+  EUR: 'de-DE',
+  GBP: 'en-GB',
+  AUD: 'en-AU',
+};
+const LOCALE = getLocaleFromCurrency(CURRENCY);
+
+function getLocaleFromCurrency(currencyCode) {
+  const code = (currencyCode || '').toUpperCase();
+  if (code && CURRENCY_LOCALE_MAP[code]) return CURRENCY_LOCALE_MAP[code];
+  return navigator.language || 'en-US';
+};
+
+function formatPrice(amount, suffix = '') {
+  const formatted = new Intl.NumberFormat(LOCALE, {
+    style: 'currency',
+    currency: CURRENCY.toUpperCase(),
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+  return `${formatted}${suffix}`;
+};
+
 
 const i18n = {
   "iso2": "US",
@@ -130,7 +156,16 @@ const i18n = {
   "labels": {
     "noStatesAvailable": "No States or Provinces Available for this Country",
     "selectState": "Select state",
-    "phoneSearchPlaceholder": "Search"
+    "phoneSearchPlaceholder": "Search",
+    "processing": "Processing...",
+    "close": "Close",
+    "cvvModalTitle": "Where is my security code?",
+    "cvvCardBack": "Back of card",
+    "cvvCardFront": "Front of card",
+    "cvvThreeDigitLabel": "3-digit CVV number",
+    "cvvFourDigitLabel": "4-digit CVV number",
+    "cvvBackDescription": "The 3-digit security code (CVV) is printed on the back of your card, to the right of the signature strip.",
+    "cvvFrontDescription": "American Express cards have a 4-digit code on the front."
   }
 };
 
@@ -153,7 +188,7 @@ const UPSELL_NEXT_PAGE_SLUG = "1/order/en/us/upsell2";
 function getNextPageSlugForRedirect() {
   const normalize = (value) => {
     if (!value) return "";
-    return value.startsWith("/") ? value : "/" + value;
+    return value.startsWith("/698b6388cc4a6494db4e561e-preview") ? value : (value.startsWith("/") ? "/698b6388cc4a6494db4e561e-preview" + value : "/698b6388cc4a6494db4e561e-preview/" + value);
   };
   if (UPSELL_NEXT_PAGE_SLUG) return normalize(UPSELL_NEXT_PAGE_SLUG);
   return "/";
@@ -634,7 +669,7 @@ const processKlarnaUpsell = async () => {
         body: JSON.stringify({
           offers: offers.map((o) => JSON.stringify(o)),
           order_id: lastOrderId,
-          pageId: "722BdsdCWt2f3ZuwHxcoAA4-m2b_PbRgvtsprjyBj2cA6gYbiJaOxl25zuwb55z1"
+          pageId: "wSlVONFcdpDkcnpmsCt_J4oxB4Lq_z9XrKG-mstQC0SckJkDC7NvHmTAwJmltsCo"
         })
       }
     );
@@ -714,7 +749,7 @@ const processUpsell = async () => {
   }
   try {
     const orderData = JSON.parse(sessionStorage.getItem("orderData"));
-    orderData.pageId = "722BdsdCWt2f3ZuwHxcoAA4-m2b_PbRgvtsprjyBj2cA6gYbiJaOxl25zuwb55z1";
+    orderData.pageId = "wSlVONFcdpDkcnpmsCt_J4oxB4Lq_z9XrKG-mstQC0SckJkDC7NvHmTAwJmltsCo";
     const lastOrderId = sessionStorage.getItem("cms_oid");
     const stripePayment = JSON.parse(sessionStorage.getItem("stripePayment"));
     const isStripeTestOrder = stripePayment && !stripePayment.isLive;
@@ -910,6 +945,57 @@ const areAllProductsRecurring = () => {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  
+(function ensurePreloaderExists() {
+    if (document.querySelector('[data-preloader]')) return;
+    const loaderOverlay = document.createElement('div');
+    loaderOverlay.setAttribute('data-preloader', '');
+    loaderOverlay.innerHTML = `
+        <div class="loader"></div>
+        <p>${i18n.labels.processing}</p>
+    `;
+
+    const loaderStyles = `
+        [data-preloader] {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            z-index: 9999;
+        }
+        [data-preloader] .loader {
+            width: 48px;
+            height: 48px;
+            border-bottom-color: transparent !important;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+            margin-top: 22px;
+            border: 5px solid rgb(18, 76, 117);
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    `;
+    document.head.insertAdjacentHTML('beforeend', `<style>${loaderStyles}</style>`);
+    document.body.appendChild(loaderOverlay);
+})();
+
   
 if (typeof validateAndSendToKlaviyo === "function") {
   try {

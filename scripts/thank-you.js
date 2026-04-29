@@ -145,7 +145,16 @@ const i18n = {
   "labels": {
     "noStatesAvailable": "No States or Provinces Available for this Country",
     "selectState": "Select state",
-    "phoneSearchPlaceholder": "Search"
+    "phoneSearchPlaceholder": "Search",
+    "processing": "Processing...",
+    "close": "Close",
+    "cvvModalTitle": "Where is my security code?",
+    "cvvCardBack": "Back of card",
+    "cvvCardFront": "Front of card",
+    "cvvThreeDigitLabel": "3-digit CVV number",
+    "cvvFourDigitLabel": "4-digit CVV number",
+    "cvvBackDescription": "The 3-digit security code (CVV) is printed on the back of your card, to the right of the signature strip.",
+    "cvvFrontDescription": "American Express cards have a 4-digit code on the front."
   }
 };
 
@@ -164,7 +173,7 @@ const THANK_YOU_NEXT_PAGE_SLUG = "";
 function getNextPageSlugForRedirect() {
   const normalize = (value) => {
     if (!value) return "";
-    return value.startsWith("/") ? value : "/" + value;
+    return value.startsWith("/698b6388cc4a6494db4e561e-preview") ? value : (value.startsWith("/") ? "/698b6388cc4a6494db4e561e-preview" + value : "/698b6388cc4a6494db4e561e-preview/" + value);
   };
   if (THANK_YOU_NEXT_PAGE_SLUG) return normalize(THANK_YOU_NEXT_PAGE_SLUG);
   return "/";
@@ -286,7 +295,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const endpoint =
     `orders?order_id=${orderids.join(",")}` +
-    `&with=order_offers,customer_address_billing,customer_address_shipping,customer,transactions,cart&pageId=19hDLAZOENcXTNCNgZ7_DAVrxc3G3lZMd6s3zAMVknBQaqn4zmRMpTTeoou1BpAu`
+    `&with=order_offers,customer_address_billing,customer_address_shipping,customer,transactions,cart&pageId=YLk5G5m_yDXoQ_Cs266FeSi8x5wJt0jtkWWk13xaGPEnt7g3OspTb7_jH0T2K0mK`
 
   const response = await fetch(
     `https://app-cms-api-proxy-prod-001.azurewebsites.net/vrio/${endpoint}`,
